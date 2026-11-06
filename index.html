@@ -61,11 +61,29 @@
 
     let lastEscapeAt = 0;
     let lastPointer = { x: -10000, y: -10000 };
+    const hayirSozleri = [
+      "Başka seçenek yok zaten.",
+      "Hayır demek için mi geldin cidden?",
+      "Parmağın yorulacak, vazgeç bence.",
+      "Bu hızla ancak rüyanda yakalarsın.",
+      "Kalbimi kırma, butonu da yakalayamazsın.",
+      "Hayır tuşu bugün yıllık izinde.",
+      "Bir evet de bitsin bu kovalamaca!",
+      "Ben kaçıyorum, sen düşün.",
+      "Bu kadar ısrar romantik sayılır mı?",
+      "Tamam tamam... yok, yine kaçtım!"
+    ];
+    let sozSirasi = 0;
 
     function kaçır(pointerX, pointerY) {
       const now = performance.now();
       if (now - lastEscapeAt < 90) return;
       lastEscapeAt = now;
+
+      // Her kaçış denemesinde sıradaki komik cevap yazsın.
+      sozSirasi = (sozSirasi + 1) % hayirSozleri.length;
+      no.textContent = hayirSozleri[sozSirasi];
+      no.setAttribute('aria-label', hayirSozleri[sozSirasi]);
 
       // İlk kaçışta butonu main kutusunun dışına al; böylece hiçbir kapsayıcı
       // tarafından kesilmez veya kartın arkasında kalmaz.
