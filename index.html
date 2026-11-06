@@ -30,6 +30,16 @@
     #yes { color: white; background: #d94f83; }
     #yes:hover { background: #c83f73; transform: translateY(-2px); }
     #no { color: #9c4165; background: #ffe0eb; position: relative; }
+    #no.is-escaping {
+      position: fixed !important;
+      z-index: 2147483647 !important;
+      margin: 0 !important;
+      max-width: calc(100vw - 28px);
+      transition: left 130ms ease-out, top 130ms ease-out;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
     .hint { margin: 26px 0 0; color: #a66a82; font-size: .9rem; }
     @media (max-width: 480px) { .buttons { gap: 10px; } #yes { width: 100%; } }
   </style>
@@ -40,7 +50,7 @@
     <h1>Benimle çıkar mısın?</h1>
     <div class="buttons">
       <button id="yes" type="button">Evet, seni seviyorum.</button>
-      <button id="no" type="button">Başka seçenek yok zaten.</button>
+      <button id="no" type="button" aria-label="Başka seçenek yok zaten">Başka seçenek yok zaten.</button>
     </div>
     <p class="hint">Cevabını merakla bekliyorum.</p>
   </main>
@@ -49,21 +59,96 @@
     const no = document.getElementById('no');
     yes.addEventListener('click', () => { window.location.href = 'evet.html'; });
 
-    function kaçır() {
-      no.style.position = 'fixed';
-      no.style.width = 'auto';
-      no.style.maxWidth = 'calc(100vw - 28px)';
-      no.style.zIndex = '10';
+    let lastEscapeAt = 0;
+    let lastPointer = { x: -10000, y: -10000 };
+
+    function kaçır(pointerX, pointerY) {
+      const now = performance.now();
+      if (now - lastEscapeAt < 90) return;
+      lastEscapeAt = now;
+
+      // İlk kaçışta butonu main kutusunun dışına al; böylece hiçbir kapsayıcı
+      // tarafından kesilmez veya kartın arkasında kalmaz.
+      if (!no.classList.contains('is-escaping')) {
+        const firstRect = no.getBoundingClientRect();
+        document.body.appendChild(no);
+        no.classList.add('is-escaping');
+        no.style.left = firstRect.left + 'px';
+        no.style.top = firstRect.top + 'px';
+      }
+
       const margin = 14;
-      const w = no.offsetWidth, h = no.offsetHeight;
-      const maxX = Math.max(margin, window.innerWidth - w - margin);
-      const maxY = Math.max(margin, window.innerHeight - h - margin);
-      no.style.left = (margin + Math.random() * (maxX - margin)) + 'px';
-      no.style.top = (margin + Math.random() * (maxY - margin)) + 'px';
+      const rect = no.getBoundingClientRect();
+      const width = Math.min(rect.width, Math.max(80, window.innerWidth - margin * 2));
+      const height = Math.min(rect.height, Math.max(36, window.innerHeight - margin * 2));
+      no.style.width = 'max-content';
+      no.style.maxWidth = 'calc(100vw - 28px)';
+
+      const maxX = Math.max(margin, window.innerWidth - width - margin);
+      const maxY = Math.max(margin, window.innerHeight - height - margin);
+
+      // Ekranın içinde kalabilecek birçok nokta dener ve imleçten en uzak
+      // noktayı seçer. Böylece buton ekran dışına kaçıp kaybolmaz.
+      let best = { x: margin, y: margin, distance: -1 };
+      for (let i = 0; i < 28; i++) {
+        const x = margin + Math.random() * (maxX - margin);
+        const y = margin + Math.random() * (maxY - margin);
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+        const distance = Math.hypot(centerX - pointerX, centerY - pointerY);
+        if (distance > best.distance) best = { x, y, distance };
+      }
+
+      no.style.left = Math.min(maxX, Math.max(margin, best.x)) + 'px';
+      no.style.top = Math.min(maxY, Math.max(margin, best.y)) + 'px';
     }
-    no.addEventListener('pointerenter', kaçır);
-    no.addEventListener('pointerdown', (event) => { event.preventDefault(); kaçır(); });
-    no.addEventListener('click', (event) => { event.preventDefault(); kaçır(); });
+
+    no.addEventListener('pointerenter', (event) => {
+      kaçır(event.clientX, event.clientY);
+    });
+
+    no.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      kaçır(event.clientX, event.clientY);
+    });
+
+    no.addEventListener('click', (event) => {
+      event.preventDefault();
+      kaçır(lastPointer.x, lastPointer.y);
+    });
+
+    no.addEventListener('focus', () => {
+      kaçır(lastPointer.x, lastPointer.y);
+    });
+
+    no.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        kaçır(lastPointer.x, lastPointer.y);
+      }
+    });
+
+    // İmleç butona yaklaşmaya devam ederse her seferinde yeniden kaçar.
+    document.addEventListener('pointermove', (event) => {
+      lastPointer = { x: event.clientX, y: event.clientY };
+      const rect = no.getBoundingClientRect();
+      const nearX = Math.max(rect.left - 115, Math.min(event.clientX, rect.right + 115));
+      const nearY = Math.max(rect.top - 85, Math.min(event.clientY, rect.bottom + 85));
+      if (Math.hypot(event.clientX - nearX, event.clientY - nearY) < 95) {
+        kaçır(event.clientX, event.clientY);
+      }
+    }, { passive: true });
+
+    // Pencere boyutu değişirse butonu görünür alanın dışına taşırma.
+    window.addEventListener('resize', () => {
+      if (!no.classList.contains('is-escaping')) return;
+      const rect = no.getBoundingClientRect();
+      const margin = 14;
+      const maxX = Math.max(margin, window.innerWidth - rect.width - margin);
+      const maxY = Math.max(margin, window.innerHeight - rect.height - margin);
+      no.style.left = Math.min(maxX, Math.max(margin, rect.left)) + 'px';
+      no.style.top = Math.min(maxY, Math.max(margin, rect.top)) + 'px';
+    });
   </script>
 </body>
 </html>
