@@ -41,8 +41,8 @@
     }
     /* Bu sahne fotoğrafın kendi gerçek sınırlarına göre ölçülenir. */
     .photo-stage {
-      position: relative; width: fit-content; max-width: 100%;
-      margin: 0 auto; border-radius: 22px; isolation: isolate;
+      position: relative; display: inline-block; vertical-align: top;
+      max-width: 100%; margin: 0 auto; border-radius: 22px; isolation: isolate;
     }
     .photo-reveal {
       position: absolute; inset: 0; z-index: 1;
@@ -66,16 +66,19 @@
       animation: photo-in 1.15s .08s cubic-bezier(.2,.8,.2,1) both;
     }
     .peel-handle {
-      position: absolute; z-index: 4; top: 0; right: 0;
-      width: clamp(58px, 13vw, 92px); aspect-ratio: 1;
+      position: absolute; z-index: 10; top: 0; right: 0;
+      display: block; width: clamp(64px, 14vw, 96px);
+      height: clamp(64px, 14vw, 96px); min-width: 0; min-height: 0;
       padding: 0; margin: 0; border: 0; border-radius: 0;
-      cursor: grab; touch-action: none; user-select: none;
+      appearance: none; -webkit-appearance: none;
+      cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
+      pointer-events: auto;
       clip-path: polygon(0 0, 100% 0, 100% 100%);
       background: linear-gradient(135deg, #fff 0%, #fff9fc 50%, #c98ca5 100%);
       filter: drop-shadow(-4px 5px 6px rgba(48,19,34,.32));
       transform-origin: top right;
       transition: transform .22s ease, opacity .35s ease;
-      box-shadow: none;
+      box-shadow: none; outline: none;
     }
     .peel-handle::before {
       content: ""; position: absolute; inset: 0;
@@ -213,7 +216,7 @@
       .photo-stage, .photo-reveal, .photo-stage img { border-radius: 18px; }
       .photo-stage img { max-height: 42vh; }
       .location-coordinates { gap: 7px; font-size: clamp(.85rem, 4vw, 1.2rem); }
-      .peel-handle { width: 68px; }
+      .peel-handle { width: 72px; height: 72px; }
       a { margin-top: 16px; }
       .love-counter { margin-top: 14px; padding: 13px 10px 14px; border-radius: 18px; }
       .counter-grid { gap: 6px; }
@@ -266,25 +269,40 @@
     let tearComplete = false;
     const colors = ['#e84f87', '#f27eaa', '#d94f83', '#f6a4c2', '#c94e7a', '#ffffff'];
 
-    // Sağ üstteki kıvrımı tutup sağ alta doğru çek.
+    // Sağ üstteki kıvrımı tut; sürüklemeyi pencere genelinde takip et.
     peelHandle.addEventListener('pointerdown', (event) => {
-      if (tearComplete) return;
+      if (tearComplete || peelStart) return;
       event.preventDefault();
-      peelStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      peelStart = {
+        id: event.pointerId,
+        x: event.clientX,
+        y: event.clientY,
+        lastX: event.clientX,
+        lastY: event.clientY
+      };
       peelHandle.classList.add('dragging');
-      if (peelHandle.setPointerCapture) peelHandle.setPointerCapture(event.pointerId);
+      try { peelHandle.setPointerCapture(event.pointerId); } catch (error) {}
     });
 
-    peelHandle.addEventListener('pointermove', (event) => {
+    function movePeel(event) {
       if (!peelStart || event.pointerId !== peelStart.id || tearComplete) return;
       const dx = Math.max(0, event.clientX - peelStart.x);
       const dy = Math.max(0, event.clientY - peelStart.y);
-      const progress = Math.min(1, (dx / 65 + dy / 120) / 2);
+      peelStart.lastX = event.clientX;
+      peelStart.lastY = event.clientY;
+
+      // Pulling diagonally down-right bends the corner more as it travels.
+      const progress = Math.min(1, Math.max(dx / 72, dy / 118));
       peelHandle.style.transform =
-        'translate(' + Math.min(72, dx * .72) + 'px,' +
-        Math.min(92, dy * .72) + 'px) rotate(' + (progress * 58) + 'deg)';
+        'translate(' + Math.min(95, dx * .78) + 'px,' +
+        Math.min(112, dy * .78) + 'px) rotate(' + (progress * 64) + 'deg)';
       if (tearPath) tearPath.style.strokeDashoffset = String(620 * (1 - progress));
-    });
+
+      // Complete as soon as a clear down-right pull is reached; pointer release location is irrelevant.
+      if ((dx >= 18 && dy >= 32) || (dx >= 34 && dy >= 18) || Math.hypot(dx, dy) >= 78 && dx >= 12 && dy >= 12) {
+        revealCoordinates();
+      }
+    }
 
     function resetPeel() {
       peelStart = null;
@@ -305,22 +323,18 @@
 
     function finishPeel(event) {
       if (!peelStart || event.pointerId !== peelStart.id || tearComplete) return;
-      const dx = Math.max(0, event.clientX - peelStart.x);
-      const dy = Math.max(0, event.clientY - peelStart.y);
-      // A meaningful diagonal pull: down and to the right from the marked corner.
-      if (dx >= 38 && dy >= 72) {
-        revealCoordinates();
-      } else {
-        resetPeel();
-      }
+      movePeel(event);
+      if (!tearComplete) resetPeel();
     }
 
-    peelHandle.addEventListener('pointerup', finishPeel);
-    peelHandle.addEventListener('pointercancel', resetPeel);
+    window.addEventListener('pointermove', movePeel, { passive: false });
+    window.addEventListener('pointerup', finishPeel);
+    window.addEventListener('pointercancel', resetPeel);
     peelHandle.addEventListener('lostpointercapture', () => {
       if (peelStart && !tearComplete) resetPeel();
     });
-    // Keyboard users can activate the same reveal with Enter or Space.
+
+    // Keyboard and assistive-tech fallback.
     peelHandle.addEventListener('click', (event) => {
       if (event.detail === 0 && !tearComplete) revealCoordinates();
     });
