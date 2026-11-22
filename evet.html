@@ -62,8 +62,25 @@
       position: relative; z-index: 2; display: block;
       width: auto; height: auto; max-width: 100%;
       max-height: min(50vh, 520px); object-fit: contain;
-      border-radius: 22px; transform-origin: top right;
+      border-radius: 22px; transform-origin: 100% 0%;
       animation: photo-in 1.15s .08s cubic-bezier(.2,.8,.2,1) both;
+      will-change: transform, opacity, filter, clip-path;
+    }
+    /* Duplicate corner of the photo: shows the printed face bending up like a sticker. */
+    .peel-flap {
+      position: absolute; z-index: 4; inset: 0; pointer-events: none;
+      background-image: url("https://yagmurasigim.wordpress.com/wp-content/uploads/2026/11/evet-surprizi.png");
+      background-size: 100% 100%; background-position: center; background-repeat: no-repeat;
+      clip-path: polygon(calc(100% - var(--peel-x, 0%)) 0, 100% 0, 100% var(--peel-y, 0%));
+      transform-origin: 100% 0%; opacity: 0;
+      filter: drop-shadow(-8px 9px 8px rgba(48,19,34,.35));
+      will-change: transform, clip-path, opacity;
+    }
+    .photo-stage.is-dragging .peel-flap { opacity: 1; }
+    .photo-stage.is-dragging .couple-photo {
+      clip-path: polygon(0 0, calc(100% - var(--peel-x, 0%)) 0, 100% var(--peel-y, 0%), 100% 100%, 0 100%);
+      filter: drop-shadow(0 12px 9px rgba(58,25,42,.2));
+      transition: none;
     }
     .peel-handle {
       position: absolute; z-index: 10; top: 0; right: 0;
@@ -72,39 +89,37 @@
       padding: 0; margin: 0; border: 0; border-radius: 0;
       appearance: none; -webkit-appearance: none;
       cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none;
-      pointer-events: auto;
-      clip-path: polygon(0 0, 100% 0, 100% 100%);
-      background: linear-gradient(135deg, #fff 0%, #fff9fc 50%, #c98ca5 100%);
-      filter: drop-shadow(-4px 5px 6px rgba(48,19,34,.32));
-      transform-origin: top right;
-      transition: transform .22s ease, opacity .35s ease;
+      pointer-events: auto; clip-path: polygon(0 0, 100% 0, 100% 100%);
+      background: linear-gradient(145deg, rgba(255,255,255,.98) 0%, #fffafd 43%, #d7a8ba 72%, #9f617b 100%);
+      filter: drop-shadow(-6px 8px 7px rgba(48,19,34,.34));
+      transform-origin: 100% 0%; transition: transform .18s ease, opacity .35s ease;
       box-shadow: none; outline: none;
     }
     .peel-handle::before {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(135deg, transparent 46%, rgba(153,82,111,.3) 49%, rgba(255,255,255,.9) 52%, transparent 57%);
+      background: linear-gradient(140deg, transparent 38%, rgba(153,82,111,.24) 47%, rgba(255,255,255,.94) 52%, rgba(255,255,255,.14) 59%, transparent 68%);
     }
     .peel-handle::after {
-      content: "↘"; position: absolute; left: 18%; bottom: 15%;
-      color: #98516d; font: 800 1.1rem/1 system-ui, sans-serif;
-      text-shadow: 0 1px 2px rgba(255,255,255,.9);
+      content: ""; position: absolute; right: 8%; top: 8%;
+      width: 26%; height: 26%; border-top: 1px solid rgba(255,255,255,.95);
+      border-right: 1px solid rgba(255,255,255,.95); border-radius: 0 9px 0 0;
+      opacity: .8;
     }
     .peel-handle:focus-visible { outline: 3px solid #b94b79; outline-offset: -5px; }
     .peel-handle.dragging { cursor: grabbing; transition: none; }
-    .tear-trail {
-      position: absolute; inset: 0; z-index: 5;
-      width: 100%; height: 100%; pointer-events: none; overflow: visible; opacity: 0;
+    .photo-stage.is-peeled .couple-photo {
+      clip-path: none !important;
+      animation: sticker-sheet-peel 1.35s cubic-bezier(.2,.72,.18,1) forwards;
+      pointer-events: none;
     }
-    .tear-trail path {
-      fill: none; stroke: rgba(255,249,250,.98); stroke-width: 7;
-      stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 620;
-      stroke-dashoffset: 620; filter: drop-shadow(0 2px 5px rgba(45,22,34,.55));
+    .photo-stage.is-peeled .peel-flap {
+      animation: peeled-corner-release 1.05s cubic-bezier(.18,.68,.2,1) forwards;
     }
-    .photo-stage.is-torn .photo-reveal { background: #241a25; }
-    .photo-stage.is-torn img { animation: photo-rip-away .9s cubic-bezier(.55,.02,.32,1) forwards; }
-    .photo-stage.is-torn .peel-handle { animation: flap-fly .5s ease-in forwards; pointer-events: none; }
-    .photo-stage.is-torn .tear-trail { opacity: 1; }
-    .photo-stage.is-torn .tear-trail path { animation: draw-tear .62s ease-out forwards; }
+    .photo-stage.is-peeled .peel-handle {
+      animation: folded-paper-release .95s cubic-bezier(.18,.68,.2,1) forwards;
+      pointer-events: none;
+    }
+    .photo-stage.is-peeled .photo-reveal { background: #241a25; }
     .love-counter {
       width: min(620px, 100%); margin: 20px auto 0; padding: 17px 18px 19px;
       border: 1px solid rgba(255,255,255,.8); border-radius: 22px;
@@ -166,29 +181,38 @@
       from { opacity: 0; transform: scale(.94); filter: blur(8px); }
       to { opacity: 1; transform: scale(1); filter: blur(0); }
     }
-    @keyframes photo-rip-away {
+    @keyframes sticker-sheet-peel {
       0% {
-        opacity: 1; transform: translate(0,0) rotate(0) scale(1);
-        clip-path: polygon(0 0,100% 0,100% 100%,0 100%);
+        opacity: 1;
+        transform: perspective(1500px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) translate3d(0,0,0) scale(1);
+        filter: drop-shadow(0 0 0 rgba(55,24,42,0));
       }
-      30% {
-        opacity: 1; transform: translate(8px,10px) rotate(1deg) scale(.995);
-        clip-path: polygon(0 0,100% 0,100% 18%,94% 25%,100% 32%,88% 41%,95% 50%,76% 59%,84% 68%,63% 77%,70% 86%,48% 100%,0 100%);
+      24% {
+        opacity: .98;
+        transform: perspective(1500px) rotateX(7deg) rotateY(-9deg) rotateZ(2deg) translate3d(12px,16px,12px) scale(.995);
+        filter: drop-shadow(-5px 9px 8px rgba(55,24,42,.2));
       }
       68% {
-        opacity: .78; transform: translate(28px,34px) rotate(3deg) scale(.97);
-        clip-path: polygon(0 0,100% 0,100% 0,0 0);
+        opacity: .72;
+        transform: perspective(1500px) rotateX(15deg) rotateY(-24deg) rotateZ(8deg) translate3d(55px,72px,34px) scale(.95);
+        filter: drop-shadow(-14px 22px 16px rgba(55,24,42,.3));
       }
       100% {
-        opacity: 0; transform: translate(54px,72px) rotate(6deg) scale(.91);
-        clip-path: polygon(0 0,100% 0,100% 0,0 0);
+        opacity: 0;
+        transform: perspective(1500px) rotateX(22deg) rotateY(-36deg) rotateZ(13deg) translate3d(115px,145px,55px) scale(.88);
+        filter: drop-shadow(-20px 28px 18px rgba(55,24,42,.04));
       }
     }
-    @keyframes flap-fly {
-      0% { opacity: 1; transform: translate(0,0) rotate(0) scale(1); }
-      100% { opacity: 0; transform: translate(76px,106px) rotate(58deg) scale(.72); }
+    @keyframes peeled-corner-release {
+      0% { opacity: 1; transform: translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0); }
+      55% { opacity: .92; transform: translate3d(48px,65px,30px) rotateX(-28deg) rotateY(18deg) rotateZ(25deg); }
+      100% { opacity: 0; transform: translate3d(125px,170px,45px) rotateX(-48deg) rotateY(30deg) rotateZ(48deg); }
     }
-    @keyframes draw-tear { to { stroke-dashoffset: 0; } }
+    @keyframes folded-paper-release {
+      0% { opacity: 1; transform: translate3d(0,0,0) rotateZ(0) rotateY(0); }
+      45% { opacity: .9; transform: translate3d(38px,53px,18px) rotateZ(28deg) rotateY(-24deg); }
+      100% { opacity: 0; transform: translate3d(112px,158px,36px) rotateZ(58deg) rotateY(-52deg); }
+    }
     @keyframes photo-glow {
       0%, 100% { box-shadow: 0 25px 80px rgba(112,45,75,.2), 0 0 0 1px rgba(255,255,255,.75); }
       50% { box-shadow: 0 28px 88px rgba(196,77,127,.28), 0 0 30px rgba(255,255,255,.8); }
@@ -241,10 +265,8 @@
             <span>37°21'41.0"E</span>
           </div>
         </div>
-        <img id="couple-photo" src="https://yagmurasigim.wordpress.com/wp-content/uploads/2026/11/evet-surprizi.png" alt="Düğün kıyafetleriyle poz veren çift">
-        <svg class="tear-trail" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M 1000 0 L 958 72 L 976 130 L 912 190 L 936 250 L 858 315 L 884 380 L 790 445 L 820 512 L 720 578 L 750 644 L 626 710 L 660 780 L 510 850 L 548 922 L 390 1000"/>
-        </svg>
+        <img class="couple-photo" id="couple-photo" src="https://yagmurasigim.wordpress.com/wp-content/uploads/2026/11/evet-surprizi.png" alt="Düğün kıyafetleriyle poz veren çift">
+        <div class="peel-flap" aria-hidden="true"></div>
         <button class="peel-handle" id="peel-handle" type="button" aria-label="Fotoğrafın sağ üst köşesini sağ alta doğru çek"></button>
       </div>
     </div>
@@ -264,79 +286,89 @@
     const layer = document.getElementById('heart-layer');
     const photoStage = document.getElementById('photo-stage');
     const peelHandle = document.getElementById('peel-handle');
-    const tearPath = document.querySelector('.tear-trail path');
     let peelStart = null;
-    let tearComplete = false;
+    let peelComplete = false;
     const colors = ['#e84f87', '#f27eaa', '#d94f83', '#f6a4c2', '#c94e7a', '#ffffff'];
 
-    // Sağ üstteki kıvrımı tut; sürüklemeyi pencere genelinde takip et.
+    // The corner tracks the finger/mouse while the printed sheet bends away.
     peelHandle.addEventListener('pointerdown', (event) => {
-      if (tearComplete || peelStart) return;
+      if (peelComplete || peelStart) return;
       event.preventDefault();
-      peelStart = {
-        id: event.pointerId,
-        x: event.clientX,
-        y: event.clientY,
-        lastX: event.clientX,
-        lastY: event.clientY
-      };
+      peelStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
       peelHandle.classList.add('dragging');
+      photoStage.classList.add('is-dragging');
       try { peelHandle.setPointerCapture(event.pointerId); } catch (error) {}
     });
 
     function movePeel(event) {
-      if (!peelStart || event.pointerId !== peelStart.id || tearComplete) return;
+      if (!peelStart || event.pointerId !== peelStart.id || peelComplete) return;
       const dx = Math.max(0, event.clientX - peelStart.x);
       const dy = Math.max(0, event.clientY - peelStart.y);
-      peelStart.lastX = event.clientX;
-      peelStart.lastY = event.clientY;
 
-      // Pulling diagonally down-right bends the corner more as it travels.
-      const progress = Math.min(1, Math.max(dx / 72, dy / 118));
-      peelHandle.style.transform =
-        'translate(' + Math.min(95, dx * .78) + 'px,' +
-        Math.min(112, dy * .78) + 'px) rotate(' + (progress * 64) + 'deg)';
-      if (tearPath) tearPath.style.strokeDashoffset = String(620 * (1 - progress));
+      // Smoothly grow the lifted corner instead of cutting the image into pieces.
+      const progress = Math.min(1, Math.max(dx / 105, dy / 135));
+      photoStage.style.setProperty('--peel-x', (progress * 48).toFixed(2) + '%');
+      photoStage.style.setProperty('--peel-y', (progress * 56).toFixed(2) + '%');
 
-      // Complete as soon as a clear down-right pull is reached; pointer release location is irrelevant.
-      if ((dx >= 18 && dy >= 32) || (dx >= 34 && dy >= 18) || Math.hypot(dx, dy) >= 78 && dx >= 12 && dy >= 12) {
-        revealCoordinates();
+      const bend = progress * 1;
+      const flapMoveX = Math.min(52, dx * .38);
+      const flapMoveY = Math.min(68, dy * .38);
+      const fold = progress * 34;
+      const flap = photoStage.querySelector('.peel-flap');
+      if (flap) {
+        flap.style.transform =
+          'perspective(1100px) translate3d(' + flapMoveX + 'px,' + flapMoveY + 'px,18px) ' +
+          'rotateX(' + (-fold * .65) + 'deg) rotateY(' + (fold * .45) + 'deg) rotateZ(' + (progress * 13) + 'deg)';
       }
+      peelHandle.style.transform =
+        'perspective(900px) translate3d(' + Math.min(65, dx * .5) + 'px,' +
+        Math.min(82, dy * .5) + 'px,24px) rotateX(-' + (progress * 24) +
+        'deg) rotateZ(' + (progress * 30) + 'deg)';
+
+      // A deliberate diagonal pull starts the full sticker lift.
+      if (dx >= 30 && dy >= 38) completePeel();
     }
 
     function resetPeel() {
       peelStart = null;
       peelHandle.classList.remove('dragging');
+      photoStage.classList.remove('is-dragging');
+      photoStage.style.removeProperty('--peel-x');
+      photoStage.style.removeProperty('--peel-y');
+      const flap = photoStage.querySelector('.peel-flap');
+      if (flap) flap.style.transform = '';
       peelHandle.style.transform = '';
-      if (tearPath) tearPath.style.strokeDashoffset = '620';
     }
 
-    function revealCoordinates() {
-      if (tearComplete) return;
-      tearComplete = true;
+    function completePeel() {
+      if (peelComplete) return;
+      peelComplete = true;
+      peelStart = null;
+      photoStage.classList.remove('is-dragging');
+      photoStage.classList.add('is-peeled');
       peelHandle.classList.remove('dragging');
-      photoStage.classList.add('is-torn');
       peelHandle.disabled = true;
       peelHandle.setAttribute('aria-hidden', 'true');
-      peelStart = null;
     }
 
     function finishPeel(event) {
-      if (!peelStart || event.pointerId !== peelStart.id || tearComplete) return;
-      movePeel(event);
-      if (!tearComplete) resetPeel();
+      if (!peelStart || event.pointerId !== peelStart.id || peelComplete) return;
+      const dx = Math.max(0, event.clientX - peelStart.x);
+      const dy = Math.max(0, event.clientY - peelStart.y);
+      if (dx >= 22 && dy >= 28) completePeel();
+      else resetPeel();
     }
 
     window.addEventListener('pointermove', movePeel, { passive: false });
     window.addEventListener('pointerup', finishPeel);
     window.addEventListener('pointercancel', resetPeel);
     peelHandle.addEventListener('lostpointercapture', () => {
-      if (peelStart && !tearComplete) resetPeel();
+      if (peelStart && !peelComplete) resetPeel();
     });
 
-    // Keyboard and assistive-tech fallback.
+    // Keyboard fallback: activate the sticker peel with Enter or Space.
     peelHandle.addEventListener('click', (event) => {
-      if (event.detail === 0 && !tearComplete) revealCoordinates();
+      if (event.detail === 0 && !peelComplete) completePeel();
     });
 
     // Başlangıç: 29 Eylül 2026, İstanbul yerel saatiyle 00:00.
