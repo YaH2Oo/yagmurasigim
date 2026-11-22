@@ -199,6 +199,8 @@
         transitionScreen.classList.add('active');
         transitionScreen.setAttribute('aria-hidden', 'false');
         matrixBoost = 4.2;
+        // Bir sonraki sayfada yeşilden pembeye yumuşak renk geçişini başlat.
+        try { sessionStorage.setItem('matrixArrival', '1'); } catch (error) {}
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         window.setTimeout(() => { window.location.href = 'soru.html'; }, reducedMotion ? 450 : 1900);
       } else {
