@@ -34,89 +34,74 @@
       animation: arrive .9s cubic-bezier(.2,.8,.2,1) both;
     }
     .photo-frame {
-      --frame-inset: 9px;
-      position: relative; padding: 9px; border-radius: 30px; overflow: hidden;
+      position: relative; padding: 9px; border-radius: 30px;
       background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,205,225,.8));
       box-shadow: 0 25px 80px rgba(112,45,75,.2), 0 0 0 1px rgba(255,255,255,.75);
       animation: photo-glow 3.8s ease-in-out infinite;
-      isolation: isolate;
+    }
+    /* Bu sahne fotoğrafın kendi gerçek sınırlarına göre ölçülenir. */
+    .photo-stage {
+      position: relative; width: fit-content; max-width: 100%;
+      margin: 0 auto; border-radius: 22px; isolation: isolate;
     }
     .photo-reveal {
-      position: absolute; inset: var(--frame-inset); z-index: 1;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 9px; overflow: hidden; border-radius: 22px; opacity: 0;
-      color: #fff4e9; text-align: center;
-      background:
-        radial-gradient(circle at 50% 45%, rgba(232,116,153,.3), transparent 48%),
-        linear-gradient(145deg, #542d44, #281b2c 70%, #171825);
-      transform: scale(.97);
-      transition: opacity .55s ease, transform .7s cubic-bezier(.2,.8,.2,1);
-    }
-    .photo-reveal::before, .photo-reveal::after {
-      content: ""; position: absolute; width: 78%; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,222,225,.42), transparent);
-    }
-    .photo-reveal::before { top: 23%; }
-    .photo-reveal::after { bottom: 23%; }
-    .location-eyebrow {
-      position: relative; z-index: 1; color: #f5b6cb; font-size: .68rem;
-      font-weight: 800; letter-spacing: .28em;
+      position: absolute; inset: 0; z-index: 1;
+      display: grid; place-items: center; overflow: hidden; border-radius: 22px;
+      color: #fff8f1; text-align: center; opacity: 1;
+      background: #241a25;
+      transition: background .5s ease;
     }
     .location-coordinates {
-      position: relative; z-index: 1; display: grid; gap: 7px;
-      font: 700 clamp(1.05rem, 3.1vw, 1.55rem)/1.3 "Courier New", monospace;
-      letter-spacing: .035em; color: #fff8f1;
-      text-shadow: 0 0 18px rgba(255,159,194,.38);
+      display: grid; gap: 9px; padding: 12px;
+      font: 700 clamp(1rem, 3.1vw, 1.55rem)/1.35 "Courier New", monospace;
+      letter-spacing: .025em; color: #fff8f1;
+      text-shadow: 0 0 18px rgba(255,159,194,.28);
+      text-align: center;
     }
-    .location-pin {
-      position: relative; z-index: 1; width: 34px; height: 34px; margin-bottom: 5px;
-      display: grid; place-items: center; border: 1px solid rgba(255,220,230,.5);
-      border-radius: 50%; color: #ffd4e1; font-size: 1.25rem;
-      box-shadow: 0 0 22px rgba(248,142,179,.18);
-    }
-    img {
-      position: relative; z-index: 2; display: block; width: 100%;
+    .photo-stage img {
+      position: relative; z-index: 2; display: block;
+      width: auto; height: auto; max-width: 100%;
       max-height: min(50vh, 520px); object-fit: contain;
       border-radius: 22px; transform-origin: top right;
       animation: photo-in 1.15s .08s cubic-bezier(.2,.8,.2,1) both;
     }
     .peel-handle {
-      position: absolute; z-index: 4; top: var(--frame-inset); right: var(--frame-inset);
-      width: clamp(70px, 12vw, 98px); aspect-ratio: 1; padding: 0; margin: 0;
-      border: 0; border-radius: 0; cursor: grab; touch-action: none;
+      position: absolute; z-index: 4; top: 0; right: 0;
+      width: clamp(58px, 13vw, 92px); aspect-ratio: 1;
+      padding: 0; margin: 0; border: 0; border-radius: 0;
+      cursor: grab; touch-action: none; user-select: none;
       clip-path: polygon(0 0, 100% 0, 100% 100%);
-      background: linear-gradient(135deg, rgba(255,255,255,.99) 0%, #fff8fb 48%, #d9a6ba 100%);
-      filter: drop-shadow(-5px 6px 7px rgba(48,19,34,.3));
-      transform-origin: top right; transition: transform .26s ease, opacity .3s ease;
+      background: linear-gradient(135deg, #fff 0%, #fff9fc 50%, #c98ca5 100%);
+      filter: drop-shadow(-4px 5px 6px rgba(48,19,34,.32));
+      transform-origin: top right;
+      transition: transform .22s ease, opacity .35s ease;
       box-shadow: none;
     }
     .peel-handle::before {
       content: ""; position: absolute; inset: 0;
-      background: linear-gradient(135deg, transparent 48%, rgba(153,82,111,.22) 49%, rgba(255,255,255,.8) 52%, transparent 58%);
+      background: linear-gradient(135deg, transparent 46%, rgba(153,82,111,.3) 49%, rgba(255,255,255,.9) 52%, transparent 57%);
     }
     .peel-handle::after {
-      content: "↙"; position: absolute; left: 17%; bottom: 16%;
-      color: #a65d7b; font: 800 1.15rem/1 system-ui, sans-serif;
+      content: "↘"; position: absolute; left: 18%; bottom: 15%;
+      color: #98516d; font: 800 1.1rem/1 system-ui, sans-serif;
       text-shadow: 0 1px 2px rgba(255,255,255,.9);
     }
     .peel-handle:focus-visible { outline: 3px solid #b94b79; outline-offset: -5px; }
     .peel-handle.dragging { cursor: grabbing; transition: none; }
-    .peel-handle[hidden] { display: none; }
     .tear-trail {
-      position: absolute; inset: var(--frame-inset); z-index: 5;
-      width: calc(100% - var(--frame-inset) * 2); height: calc(100% - var(--frame-inset) * 2);
-      pointer-events: none; overflow: visible; opacity: 0;
+      position: absolute; inset: 0; z-index: 5;
+      width: 100%; height: 100%; pointer-events: none; overflow: visible; opacity: 0;
     }
     .tear-trail path {
       fill: none; stroke: rgba(255,249,250,.98); stroke-width: 7;
       stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 620;
-      stroke-dashoffset: 620; filter: drop-shadow(0 2px 5px rgba(99,37,64,.5));
+      stroke-dashoffset: 620; filter: drop-shadow(0 2px 5px rgba(45,22,34,.55));
     }
-    .photo-frame.is-torn .photo-reveal { opacity: 1; transform: scale(1); transition-delay: .32s; }
-    .photo-frame.is-torn img { animation: photo-rip .95s cubic-bezier(.55,.02,.32,1) forwards; }
-    .photo-frame.is-torn .peel-handle { animation: flap-fly .48s ease-in forwards; pointer-events: none; }
-    .photo-frame.is-torn .tear-trail { opacity: 1; }
-    .photo-frame.is-torn .tear-trail path { animation: draw-tear .62s ease-out forwards; }
+    .photo-stage.is-torn .photo-reveal { background: #241a25; }
+    .photo-stage.is-torn img { animation: photo-rip-away .9s cubic-bezier(.55,.02,.32,1) forwards; }
+    .photo-stage.is-torn .peel-handle { animation: flap-fly .5s ease-in forwards; pointer-events: none; }
+    .photo-stage.is-torn .tear-trail { opacity: 1; }
+    .photo-stage.is-torn .tear-trail path { animation: draw-tear .62s ease-out forwards; }
     .love-counter {
       width: min(620px, 100%); margin: 20px auto 0; padding: 17px 18px 19px;
       border: 1px solid rgba(255,255,255,.8); border-radius: 22px;
@@ -178,27 +163,27 @@
       from { opacity: 0; transform: scale(.94); filter: blur(8px); }
       to { opacity: 1; transform: scale(1); filter: blur(0); }
     }
-    @keyframes photo-rip {
+    @keyframes photo-rip-away {
       0% {
         opacity: 1; transform: translate(0,0) rotate(0) scale(1);
         clip-path: polygon(0 0,100% 0,100% 100%,0 100%);
       }
-      34% {
-        opacity: 1; transform: translate(-3px,5px) rotate(-.5deg) scale(1);
-        clip-path: polygon(0 0,100% 0,100% 13%,93% 19%,99% 27%,88% 34%,96% 42%,81% 50%,90% 58%,73% 67%,82% 75%,63% 84%,71% 92%,52% 100%,0 100%);
+      30% {
+        opacity: 1; transform: translate(8px,10px) rotate(1deg) scale(.995);
+        clip-path: polygon(0 0,100% 0,100% 18%,94% 25%,100% 32%,88% 41%,95% 50%,76% 59%,84% 68%,63% 77%,70% 86%,48% 100%,0 100%);
       }
-      70% {
-        opacity: .86; transform: translate(-13px,17px) rotate(-2deg) scale(.985);
-        clip-path: polygon(0 0,86% 0,86% 12%,78% 19%,84% 27%,70% 35%,77% 43%,61% 52%,68% 60%,51% 69%,59% 77%,41% 86%,48% 94%,31% 100%,0 100%);
+      68% {
+        opacity: .78; transform: translate(28px,34px) rotate(3deg) scale(.97);
+        clip-path: polygon(0 0,100% 0,100% 0,0 0);
       }
       100% {
-        opacity: 0; transform: translate(-28px,35px) rotate(-4deg) scale(.95);
+        opacity: 0; transform: translate(54px,72px) rotate(6deg) scale(.91);
         clip-path: polygon(0 0,100% 0,100% 0,0 0);
       }
     }
     @keyframes flap-fly {
-      0% { opacity: 1; transform: translate(-18px,58px) rotate(22deg) scale(1); }
-      100% { opacity: 0; transform: translate(-58px,130px) rotate(52deg) scale(.72); }
+      0% { opacity: 1; transform: translate(0,0) rotate(0) scale(1); }
+      100% { opacity: 0; transform: translate(76px,106px) rotate(58deg) scale(.72); }
     }
     @keyframes draw-tear { to { stroke-dashoffset: 0; } }
     @keyframes photo-glow {
@@ -224,12 +209,11 @@
     }
     @media (max-width: 520px) {
       body { padding: 14px; }
-      .photo-frame { --frame-inset: 6px; padding: 6px; border-radius: 23px; }
-      img { max-height: 42vh; border-radius: 18px; }
-      .photo-reveal { border-radius: 18px; gap: 7px; }
-      .location-eyebrow { font-size: .58rem; letter-spacing: .2em; }
-      .location-coordinates { font-size: clamp(.9rem, 4vw, 1.25rem); }
-      .peel-handle { width: 70px; }
+      .photo-frame { padding: 6px; border-radius: 23px; }
+      .photo-stage, .photo-reveal, .photo-stage img { border-radius: 18px; }
+      .photo-stage img { max-height: 42vh; }
+      .location-coordinates { gap: 7px; font-size: clamp(.85rem, 4vw, 1.2rem); }
+      .peel-handle { width: 68px; }
       a { margin-top: 16px; }
       .love-counter { margin-top: 14px; padding: 13px 10px 14px; border-radius: 18px; }
       .counter-grid { gap: 6px; }
@@ -247,19 +231,19 @@
   <div id="heart-layer" aria-hidden="true"></div>
   <main>
     <div class="photo-frame" id="photo-frame">
-      <div class="photo-reveal" aria-live="polite">
-        <span class="location-pin" aria-hidden="true">⌖</span>
-        <span class="location-eyebrow">BİZİM NOKTAMIZ</span>
-        <div class="location-coordinates">
-          <span>37°03'48.5"N</span>
-          <span>37°21'41.0"E</span>
+      <div class="photo-stage" id="photo-stage">
+        <div class="photo-reveal" aria-live="polite">
+          <div class="location-coordinates">
+            <span>37°03'48.5"N</span>
+            <span>37°21'41.0"E</span>
+          </div>
         </div>
+        <img id="couple-photo" src="https://yagmurasigim.wordpress.com/wp-content/uploads/2026/11/evet-surprizi.png" alt="Düğün kıyafetleriyle poz veren çift">
+        <svg class="tear-trail" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M 1000 0 L 958 72 L 976 130 L 912 190 L 936 250 L 858 315 L 884 380 L 790 445 L 820 512 L 720 578 L 750 644 L 626 710 L 660 780 L 510 850 L 548 922 L 390 1000"/>
+        </svg>
+        <button class="peel-handle" id="peel-handle" type="button" aria-label="Fotoğrafın sağ üst köşesini sağ alta doğru çek"></button>
       </div>
-      <img id="couple-photo" src="https://yagmurasigim.wordpress.com/wp-content/uploads/2026/11/evet-surprizi.png" alt="Düğün kıyafetleriyle poz veren çift">
-      <svg class="tear-trail" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M 100 0 L 94 12 L 99 19 L 88 29 L 96 37 L 81 47 L 90 56 L 73 65 L 82 74 L 64 84 L 71 92 L 52 100"/>
-      </svg>
-      <button class="peel-handle" id="peel-handle" type="button" aria-label="Fotoğrafın sağ üst köşesini tut ve aşağı çek"></button>
     </div>
     <section class="love-counter" aria-label="29 Eylül'den beri geçen süre">
       <p class="counter-title">Birlikte geçen zaman</p>
@@ -275,58 +259,70 @@
   </main>
   <script>
     const layer = document.getElementById('heart-layer');
-    const photoFrame = document.getElementById('photo-frame');
+    const photoStage = document.getElementById('photo-stage');
     const peelHandle = document.getElementById('peel-handle');
+    const tearPath = document.querySelector('.tear-trail path');
     let peelStart = null;
     let tearComplete = false;
     const colors = ['#e84f87', '#f27eaa', '#d94f83', '#f6a4c2', '#c94e7a', '#ffffff'];
 
-    // Fotoğrafın kıvrık köşesini fareyle veya parmakla aşağı çekerek yırt.
+    // Sağ üstteki kıvrımı tutup sağ alta doğru çek.
     peelHandle.addEventListener('pointerdown', (event) => {
       if (tearComplete) return;
       event.preventDefault();
       peelStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
       peelHandle.classList.add('dragging');
-      peelHandle.setPointerCapture(event.pointerId);
+      if (peelHandle.setPointerCapture) peelHandle.setPointerCapture(event.pointerId);
     });
 
     peelHandle.addEventListener('pointermove', (event) => {
       if (!peelStart || event.pointerId !== peelStart.id || tearComplete) return;
-      const distanceY = Math.max(0, event.clientY - peelStart.y);
-      const distanceX = Math.max(0, peelStart.x - event.clientX);
-      const progress = Math.min(1, distanceY / 126);
-      const sideways = Math.min(28, distanceX * .22);
+      const dx = Math.max(0, event.clientX - peelStart.x);
+      const dy = Math.max(0, event.clientY - peelStart.y);
+      const progress = Math.min(1, (dx / 65 + dy / 120) / 2);
       peelHandle.style.transform =
-        'translate(' + (-sideways - progress * 12) + 'px,' + (progress * 58) + 'px) rotate(' + (progress * 24) + 'deg)';
-      photoFrame.style.setProperty('--tear-progress', progress.toFixed(3));
+        'translate(' + Math.min(72, dx * .72) + 'px,' +
+        Math.min(92, dy * .72) + 'px) rotate(' + (progress * 58) + 'deg)';
+      if (tearPath) tearPath.style.strokeDashoffset = String(620 * (1 - progress));
     });
 
     function resetPeel() {
       peelStart = null;
       peelHandle.classList.remove('dragging');
       peelHandle.style.transform = '';
-      photoFrame.style.removeProperty('--tear-progress');
+      if (tearPath) tearPath.style.strokeDashoffset = '620';
+    }
+
+    function revealCoordinates() {
+      if (tearComplete) return;
+      tearComplete = true;
+      peelHandle.classList.remove('dragging');
+      photoStage.classList.add('is-torn');
+      peelHandle.disabled = true;
+      peelHandle.setAttribute('aria-hidden', 'true');
+      peelStart = null;
     }
 
     function finishPeel(event) {
       if (!peelStart || event.pointerId !== peelStart.id || tearComplete) return;
-      const distanceY = Math.max(0, event.clientY - peelStart.y);
-      if (distanceY >= 112) {
-        tearComplete = true;
-        peelHandle.classList.remove('dragging');
-        photoFrame.classList.add('is-torn');
-        peelHandle.disabled = true;
-        peelHandle.setAttribute('aria-hidden', 'true');
+      const dx = Math.max(0, event.clientX - peelStart.x);
+      const dy = Math.max(0, event.clientY - peelStart.y);
+      // A meaningful diagonal pull: down and to the right from the marked corner.
+      if (dx >= 38 && dy >= 72) {
+        revealCoordinates();
       } else {
         resetPeel();
       }
-      peelStart = null;
     }
 
     peelHandle.addEventListener('pointerup', finishPeel);
     peelHandle.addEventListener('pointercancel', resetPeel);
     peelHandle.addEventListener('lostpointercapture', () => {
       if (peelStart && !tearComplete) resetPeel();
+    });
+    // Keyboard users can activate the same reveal with Enter or Space.
+    peelHandle.addEventListener('click', (event) => {
+      if (event.detail === 0 && !tearComplete) revealCoordinates();
     });
 
     // Başlangıç: 29 Eylül 2026, İstanbul yerel saatiyle 00:00.
