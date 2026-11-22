@@ -3,68 +3,106 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fff0f5">
-  <title>Küçük Bir Sır ❤️</title>
+  <meta name="theme-color" content="#020805">
+  <title>?</title>
   <style>
     * { box-sizing: border-box; }
+    :root { color-scheme: dark; }
     body {
       margin: 0; min-height: 100vh; min-height: 100svh; display: grid; place-items: center;
-      padding: 22px; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
-      color: #702d4b; overflow: hidden;
+      padding: 22px; overflow: hidden; isolation: isolate;
+      background: #020805; color: #b5ffc8;
+      font-family: "Courier New", ui-monospace, monospace;
+    }
+    #matrix {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: -3; opacity: .62; pointer-events: none;
+    }
+    body::before {
+      content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
       background:
-        radial-gradient(circle at 16% 16%, rgba(255,255,255,.95), transparent 29%),
-        radial-gradient(circle at 85% 82%, rgba(255,190,215,.6), transparent 30%),
-        linear-gradient(135deg, #fff0f5, #ffd9e8 55%, #ffeaf1);
+        radial-gradient(ellipse at 50% 48%, rgba(0,35,13,.1) 0%, rgba(0,0,0,.3) 42%, rgba(0,0,0,.82) 100%),
+        linear-gradient(0deg, rgba(0,0,0,.24), rgba(0,18,5,.12));
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; z-index: 4; pointer-events: none;
+      opacity: .12; mix-blend-mode: screen;
+      background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(70,255,120,.12) 4px, transparent 5px);
     }
     .gate {
-      width: min(440px, 100%); padding: clamp(28px, 7vw, 46px);
-      text-align: center; border: 1px solid rgba(190,93,130,.18); border-radius: 28px;
-      background: rgba(255,255,255,.78); backdrop-filter: blur(12px);
-      box-shadow: 0 24px 70px rgba(126,45,78,.14);
-      animation: appear .8s cubic-bezier(.2,.8,.2,1) both;
+      width: min(370px, 100%); padding: clamp(27px, 7vw, 40px);
+      text-align: center; border: 1px solid rgba(61,255,117,.42); border-radius: 9px;
+      background: rgba(0,12,5,.76); backdrop-filter: blur(7px);
+      box-shadow: 0 0 18px rgba(0,255,80,.12), inset 0 0 28px rgba(0,255,80,.035);
+      animation: appear .9s cubic-bezier(.2,.8,.2,1) both;
     }
-    .lock {
-      width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center;
-      border-radius: 50%; color: #c14f7b; font-size: 28px;
-      background: #ffe4ee; box-shadow: 0 8px 24px rgba(190,93,130,.13);
+    h1 {
+      margin: 0 0 22px; color: #75ff9d; font-size: clamp(5rem, 19vw, 7rem);
+      line-height: .95; font-weight: 400; text-shadow: 0 0 8px rgba(65,255,121,.9), 0 0 28px rgba(0,255,78,.45);
+      animation: pulse 2.8s ease-in-out infinite;
     }
-    h1 { margin: 0 0 9px; color: #873653; font-size: clamp(1.8rem, 7vw, 2.35rem); }
-    .sub { margin: 0 0 25px; color: #aa6b84; font-size: .95rem; }
-    label { display: block; text-align: left; margin: 0 0 8px 3px; color: #934560; font-size: .84rem; font-weight: 700; }
     input {
-      display: block; width: 100%; height: 52px; padding: 0 16px; outline: none;
-      border: 1px solid #edc2d3; border-radius: 14px; background: #fffafd;
-      color: #702d4b; font: inherit; text-align: center; letter-spacing: .12em;
+      display: block; width: 100%; height: 51px; padding: 0 16px; outline: none;
+      border: 1px solid rgba(76,255,129,.36); border-radius: 5px;
+      background: rgba(0,0,0,.72); color: #9dffb6; caret-color: #74ff98;
+      font: inherit; font-size: 1.15rem; text-align: center; letter-spacing: .3em;
+      box-shadow: inset 0 0 13px rgba(0,255,77,.06);
       transition: border-color .2s, box-shadow .2s;
     }
-    input:focus { border-color: #d96b96; box-shadow: 0 0 0 4px rgba(217,107,150,.13); }
-    button {
-      width: 100%; margin-top: 14px; min-height: 51px; border: 0; border-radius: 999px;
-      color: #fff; background: #d94f83; font: inherit; font-weight: 750; cursor: pointer;
-      box-shadow: 0 9px 22px rgba(190,63,112,.2); transition: transform .2s, background .2s;
+    input:focus {
+      border-color: #65ff92;
+      box-shadow: 0 0 0 2px rgba(49,255,106,.12), 0 0 18px rgba(0,255,80,.18), inset 0 0 16px rgba(0,255,77,.08);
     }
-    button:hover { background: #c83f73; transform: translateY(-2px); }
-    #message { min-height: 22px; margin: 14px 0 0; color: #bd4771; font-size: .84rem; }
-    @keyframes appear { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    button {
+      width: 100%; margin-top: 12px; min-height: 48px; border: 1px solid rgba(95,255,138,.55);
+      border-radius: 5px; color: #8dffad; background: rgba(0,45,16,.74);
+      font: inherit; font-size: 1.8rem; cursor: pointer;
+      text-shadow: 0 0 10px rgba(65,255,121,.7);
+      box-shadow: 0 0 13px rgba(0,255,80,.08), inset 0 0 14px rgba(0,255,80,.06);
+      transition: background .2s, box-shadow .2s, transform .2s;
+    }
+    button:hover, button:focus-visible {
+      outline: none; background: rgba(0,83,29,.86);
+      box-shadow: 0 0 20px rgba(0,255,80,.23), inset 0 0 18px rgba(0,255,80,.1);
+    }
+    button:active { transform: scale(.985); }
+    .gate.wrong { animation: shake .28s linear; border-color: rgba(255,55,75,.85); }
+    .gate.wrong input { border-color: rgba(255,55,75,.9); box-shadow: 0 0 14px rgba(255,30,60,.18); }
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(14px) scale(.97); filter: blur(5px); }
+      to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: .82; text-shadow: 0 0 8px rgba(65,255,121,.75), 0 0 24px rgba(0,255,78,.35); }
+      50% { opacity: 1; text-shadow: 0 0 13px rgba(65,255,121,1), 0 0 38px rgba(0,255,78,.65); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-7px); }
+      50% { transform: translateX(7px); }
+      75% { transform: translateX(-4px); }
+    }
+    @media (max-width: 480px) {
+      .gate { width: min(340px, 100%); padding: 27px 24px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
-  <main class="gate">
-    <div class="lock" aria-hidden="true">♡</div>
-    <h1>Minik bir sır…</h1>
-    <p class="sub">Devam etmek için şifreyi gir.</p>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <main class="gate" id="gate">
+    <h1 aria-label="Soru işareti">?</h1>
     <form id="gate-form">
-      <label for="password">ŞİFRE</label>
-      <input id="password" name="password" type="password" placeholder="Şifreyi yaz..." autocomplete="off" autocapitalize="off" spellcheck="false" required autofocus>
-      <button type="submit">Giriş yap</button>
-      <p id="message" role="status" aria-live="polite"></p>
+      <input id="password" name="password" type="password" aria-label="Şifre" autocomplete="off" autocapitalize="off" spellcheck="false" required autofocus>
+      <button type="submit" aria-label="Devam et">?</button>
     </form>
   </main>
   <script>
     const form = document.getElementById('gate-form');
     const password = document.getElementById('password');
-    const message = document.getElementById('message');
+    const gate = document.getElementById('gate');
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -72,11 +110,59 @@
       if (entered === 'aşk') {
         window.location.href = 'soru.html';
       } else {
-        message.textContent = 'Şifre olmadı, bir daha dene. ❤️';
+        gate.classList.remove('wrong');
+        void gate.offsetWidth;
+        gate.classList.add('wrong');
         password.value = '';
         password.focus();
       }
     });
+
+    // Matrix-style falling code background.
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+    const glyphs = 'アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*+-<>?';
+    const fontSize = 16;
+    let columns = [];
+    let width = 0;
+    let height = 0;
+
+    function resizeMatrix() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      columns = Array.from({ length: Math.ceil(width / fontSize) }, () => Math.random() * (height / fontSize));
+    }
+
+    function drawMatrix() {
+      ctx.fillStyle = 'rgba(0, 8, 3, 0.085)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.font = fontSize + 'px monospace';
+      for (let i = 0; i < columns.length; i++) {
+        const char = glyphs[Math.floor(Math.random() * glyphs.length)];
+        const x = i * fontSize;
+        const y = columns[i] * fontSize;
+        ctx.fillStyle = Math.random() > .975 ? '#d5ffe0' : '#19d653';
+        ctx.fillText(char, x, y);
+        if (y > height && Math.random() > .975) columns[i] = 0;
+        columns[i] += .52 + Math.random() * .5;
+      }
+      requestAnimationFrame(drawMatrix);
+    }
+
+    resizeMatrix();
+    window.addEventListener('resize', resizeMatrix);
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      drawMatrix();
+    } else {
+      ctx.fillStyle = 'rgba(0, 8, 3, 1)';
+      ctx.fillRect(0, 0, width, height);
+    }
   </script>
 </body>
 </html>
