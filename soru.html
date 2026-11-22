@@ -4,6 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff0f5">
+  <script>
+    // Sadece Matrix ekranından gelindiyse ilk açılışa özel renk geçişi uygula.
+    try {
+      if (sessionStorage.getItem('matrixArrival') === '1') {
+        document.documentElement.classList.add('matrix-arrival');
+        sessionStorage.removeItem('matrixArrival');
+      }
+    } catch (error) {}
+  </script>
   <title>Bir Sorum Var…</title>
   <style>
     * { box-sizing: border-box; }
@@ -13,6 +22,47 @@
       color: #612b43; overflow: hidden;
       background: radial-gradient(circle at 20% 15%, #fff 0 7%, transparent 28%),
                   linear-gradient(135deg, #fff0f5, #ffe0eb 55%, #fbd0e1);
+    }
+    /* Matrix'in koyu yeşilinden romantik pembe ekrana yumuşak geçiş */
+    .arrival-overlay {
+      position: fixed; inset: 0; z-index: 50; pointer-events: none; visibility: hidden;
+      opacity: 0; background: radial-gradient(ellipse at center, rgba(0,28,10,.92), rgba(0,8,3,.985) 72%);
+    }
+    .arrival-overlay::before {
+      content: ""; position: absolute; inset: -25%; opacity: 0; transform: scale(.55);
+      background: radial-gradient(circle at 50% 48%, rgba(255,151,190,.62) 0%, rgba(255,122,171,.32) 24%, rgba(255,205,223,.10) 46%, transparent 70%);
+      filter: blur(18px);
+    }
+    .matrix-arrival .arrival-overlay {
+      visibility: visible; animation: green-veil-fade 2.45s cubic-bezier(.48,0,.22,1) forwards;
+    }
+    .matrix-arrival .arrival-overlay::before {
+      animation: pink-light-bloom 2.45s cubic-bezier(.18,.7,.2,1) forwards;
+    }
+    .matrix-arrival body > main {
+      opacity: 0; transform: translateY(16px) scale(.975);
+      animation: question-page-arrive 1.65s cubic-bezier(.2,.75,.25,1) .18s forwards;
+    }
+    @keyframes green-veil-fade {
+      0% { opacity: 1; }
+      24% { opacity: 1; }
+      62% { opacity: .72; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+    @keyframes pink-light-bloom {
+      0% { opacity: 0; transform: scale(.55); }
+      38% { opacity: .58; transform: scale(.9); }
+      72% { opacity: .9; transform: scale(1.13); }
+      100% { opacity: 0; transform: scale(1.32); }
+    }
+    @keyframes question-page-arrive {
+      0% { opacity: 0; transform: translateY(16px) scale(.975); filter: blur(8px); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .matrix-arrival .arrival-overlay,
+      .matrix-arrival .arrival-overlay::before,
+      .matrix-arrival body > main { animation-duration: .01ms !important; animation-delay: 0ms !important; }
     }
     main {
       width: min(620px, 100%); text-align: center; padding: clamp(28px, 6vw, 56px);
@@ -43,6 +93,7 @@
   </style>
 </head>
 <body>
+  <div class="arrival-overlay" aria-hidden="true"></div>
   <main>
     <h1>Benimle çıkar mısın?</h1>
     <div class="buttons">
