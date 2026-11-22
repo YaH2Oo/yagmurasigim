@@ -359,11 +359,27 @@
       if (peelComplete) return;
       peelComplete = true;
       peelStart = null;
+
+      // Keep the exact live fold pose, then let CSS ease it away from that pose.
+      const flap = photoStage.querySelector('.peel-flap');
+      if (flap) {
+        const currentFlapTransform = getComputedStyle(flap).transform;
+        if (currentFlapTransform !== 'none') flap.style.transform = currentFlapTransform;
+      }
+      const currentHandleTransform = getComputedStyle(peelHandle).transform;
+      if (currentHandleTransform !== 'none') peelHandle.style.transform = currentHandleTransform;
+
       photoStage.classList.remove('is-dragging');
       photoStage.classList.add('is-peeled');
       peelHandle.classList.remove('dragging');
       peelHandle.disabled = true;
       peelHandle.setAttribute('aria-hidden', 'true');
+
+      // Clearing inline transforms on the next frame triggers the defined smooth release transitions.
+      requestAnimationFrame(() => {
+        if (flap) flap.style.transform = '';
+        peelHandle.style.transform = '';
+      });
     }
 
     function finishPeel(event) {
