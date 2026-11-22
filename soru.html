@@ -12,6 +12,12 @@
         sessionStorage.removeItem('matrixArrival');
       }
     } catch (error) {}
+
+    // F5 / browser refresh on inner pages always returns to the password screen.
+    const navEntries = performance.getEntriesByType ? performance.getEntriesByType('navigation') : [];
+    const wasReloaded = (navEntries.length && navEntries[0].type === 'reload') ||
+      (performance.navigation && performance.navigation.type === 1);
+    if (wasReloaded) window.location.replace('./index.html');
   </script>
   <title>Bir Sorum Var…</title>
   <style>
@@ -26,7 +32,7 @@
     /* Matrix'in koyu yeşilinden romantik pembe ekrana yumuşak geçiş */
     .arrival-overlay {
       position: fixed; inset: 0; z-index: 50; pointer-events: none; visibility: hidden;
-      opacity: 0; background: radial-gradient(ellipse at center, rgba(0,28,10,.92), rgba(0,8,3,.985) 72%);
+      opacity: 0; background: #010503;
     }
     .arrival-overlay::before {
       content: ""; position: absolute; inset: -25%; opacity: 0; transform: scale(.55);
@@ -41,19 +47,29 @@
     }
     .matrix-arrival body > main {
       opacity: 0; transform: translateY(16px) scale(.975);
-      animation: question-page-arrive 1.65s cubic-bezier(.2,.75,.25,1) .18s forwards;
+      animation: question-page-arrive 2.25s cubic-bezier(.2,.75,.25,1) .12s forwards;
+    }
+    /* Hayır butonu siyah perdenin arkasından daha geç ve daha sakin belirir. */
+    .matrix-arrival #no {
+      opacity: 0; filter: brightness(.12) blur(3px); transform: translateY(8px);
+      animation: no-soft-arrive 2.55s cubic-bezier(.2,.7,.25,1) .2s forwards;
     }
     @keyframes green-veil-fade {
       0% { opacity: 1; }
-      24% { opacity: 1; }
-      62% { opacity: .72; }
+      42% { opacity: 1; }
+      75% { opacity: .68; }
       100% { opacity: 0; visibility: hidden; }
     }
     @keyframes pink-light-bloom {
-      0% { opacity: 0; transform: scale(.55); }
-      38% { opacity: .58; transform: scale(.9); }
-      72% { opacity: .9; transform: scale(1.13); }
-      100% { opacity: 0; transform: scale(1.32); }
+      0% { opacity: 0; transform: scale(.45); }
+      42% { opacity: .16; transform: scale(.8); }
+      76% { opacity: .34; transform: scale(1.08); }
+      100% { opacity: 0; transform: scale(1.34); }
+    }
+    @keyframes no-soft-arrive {
+      0% { opacity: 0; filter: brightness(.12) blur(3px); transform: translateY(8px); }
+      68% { opacity: .38; filter: brightness(.55) blur(1.2px); transform: translateY(3px); }
+      100% { opacity: 1; filter: brightness(1) blur(0); transform: translateY(0); }
     }
     @keyframes question-page-arrive {
       0% { opacity: 0; transform: translateY(16px) scale(.975); filter: blur(8px); }
@@ -108,6 +124,10 @@
 
     let lastEscapeAt = 0;
     let lastPointer = { x: -10000, y: -10000 };
+    let noButtonActive = !document.documentElement.classList.contains('matrix-arrival');
+    if (!noButtonActive) {
+      window.setTimeout(() => { noButtonActive = true; }, 3000);
+    }
     const hayirSozleri = [
       "Başka seçenek yok zaten.",
       "Hayır demek için mi geldin cidden?",
@@ -123,6 +143,7 @@
     let sozSirasi = 0;
 
     function kaçır(pointerX, pointerY) {
+      if (!noButtonActive) return;
       const now = performance.now();
       if (now - lastEscapeAt < 90) return;
       lastEscapeAt = now;
@@ -195,6 +216,7 @@
 
     // İmleç butona yaklaşmaya devam ederse her seferinde yeniden kaçar.
     document.addEventListener('pointermove', (event) => {
+      if (!noButtonActive) return;
       lastPointer = { x: event.clientX, y: event.clientY };
       const rect = no.getBoundingClientRect();
       const nearX = Math.max(rect.left - 115, Math.min(event.clientX, rect.right + 115));
