@@ -65,21 +65,32 @@
       border-radius: 22px; transform-origin: 100% 0%;
       animation: photo-in 1.15s .08s cubic-bezier(.2,.8,.2,1) both;
       will-change: transform, opacity, filter, clip-path;
+      transition: transform .12s linear, clip-path .12s linear, filter .12s linear;
     }
-    /* Duplicate corner of the photo: shows the printed face bending up like a sticker. */
+    /* Fotoğrafın basılı yüzü, parmağın hareketiyle birlikte yapışkanlı kâğıt gibi kalkar. */
     .peel-flap {
       position: absolute; z-index: 4; inset: 0; pointer-events: none;
       background-image: url("https://yagmurasigim.wordpress.com/wp-content/uploads/2026/11/evet-surprizi.png");
       background-size: 100% 100%; background-position: center; background-repeat: no-repeat;
       clip-path: polygon(calc(100% - var(--peel-x, 0%)) 0, 100% 0, 100% var(--peel-y, 0%));
       transform-origin: 100% 0%; opacity: 0;
-      filter: drop-shadow(-8px 9px 8px rgba(48,19,34,.35));
+      filter: drop-shadow(-10px 12px 11px rgba(48,19,34,.42));
       will-change: transform, clip-path, opacity;
+      backface-visibility: hidden;
+    }
+    .peel-flap::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(140deg, transparent 25%, rgba(255,255,255,.08) 42%, rgba(255,255,255,.72) 50%, rgba(112,53,78,.26) 57%, transparent 69%);
+      opacity: .8;
     }
     .photo-stage.is-dragging .peel-flap { opacity: 1; }
     .photo-stage.is-dragging .couple-photo {
       clip-path: polygon(0 0, calc(100% - var(--peel-x, 0%)) 0, 100% var(--peel-y, 0%), 100% 100%, 0 100%);
-      filter: drop-shadow(0 12px 9px rgba(58,25,42,.2));
+      transform: perspective(1500px)
+        translate3d(var(--sheet-x, 0px), var(--sheet-y, 0px), 0)
+        rotateX(var(--sheet-rx, 0deg)) rotateY(var(--sheet-ry, 0deg))
+        rotateZ(var(--sheet-rz, 0deg)) scale(var(--sheet-scale, 1));
+      filter: drop-shadow(-8px 12px 12px rgba(58,25,42,.28));
       transition: none;
     }
     .peel-handle {
@@ -109,14 +120,24 @@
     .peel-handle.dragging { cursor: grabbing; transition: none; }
     .photo-stage.is-peeled .couple-photo {
       clip-path: none !important;
-      animation: sticker-sheet-peel 1.35s cubic-bezier(.2,.72,.18,1) forwards;
+      transform: perspective(1500px) translate3d(225px, 285px, 72px)
+        rotateX(27deg) rotateY(-38deg) rotateZ(15deg) scale(.82) !important;
+      opacity: 0; filter: drop-shadow(-20px 28px 18px rgba(55,24,42,0)) !important;
+      transition:
+        transform 1.18s cubic-bezier(.18,.72,.2,1),
+        opacity .92s ease .18s,
+        filter 1.05s ease;
       pointer-events: none;
     }
     .photo-stage.is-peeled .peel-flap {
-      animation: peeled-corner-release 1.05s cubic-bezier(.18,.68,.2,1) forwards;
+      opacity: 0;
+      transform: perspective(1100px) translate3d(190px,235px,55px)
+        rotateX(-48deg) rotateY(30deg) rotateZ(48deg);
+      transition: transform 1.02s cubic-bezier(.18,.68,.2,1), opacity .72s ease .16s;
     }
     .photo-stage.is-peeled .peel-handle {
-      animation: folded-paper-release .95s cubic-bezier(.18,.68,.2,1) forwards;
+      opacity: 0; transform: translate3d(180px,225px,50px) rotateZ(48deg) rotateY(-35deg);
+      transition: transform .95s cubic-bezier(.18,.68,.2,1), opacity .7s ease .12s;
       pointer-events: none;
     }
     .photo-stage.is-peeled .photo-reveal { background: #241a25; }
@@ -181,37 +202,9 @@
       from { opacity: 0; transform: scale(.94); filter: blur(8px); }
       to { opacity: 1; transform: scale(1); filter: blur(0); }
     }
-    @keyframes sticker-sheet-peel {
-      0% {
-        opacity: 1;
-        transform: perspective(1500px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) translate3d(0,0,0) scale(1);
-        filter: drop-shadow(0 0 0 rgba(55,24,42,0));
-      }
-      24% {
-        opacity: .98;
-        transform: perspective(1500px) rotateX(7deg) rotateY(-9deg) rotateZ(2deg) translate3d(12px,16px,12px) scale(.995);
-        filter: drop-shadow(-5px 9px 8px rgba(55,24,42,.2));
-      }
-      68% {
-        opacity: .72;
-        transform: perspective(1500px) rotateX(15deg) rotateY(-24deg) rotateZ(8deg) translate3d(55px,72px,34px) scale(.95);
-        filter: drop-shadow(-14px 22px 16px rgba(55,24,42,.3));
-      }
-      100% {
-        opacity: 0;
-        transform: perspective(1500px) rotateX(22deg) rotateY(-36deg) rotateZ(13deg) translate3d(115px,145px,55px) scale(.88);
-        filter: drop-shadow(-20px 28px 18px rgba(55,24,42,.04));
-      }
-    }
-    @keyframes peeled-corner-release {
-      0% { opacity: 1; transform: translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0); }
-      55% { opacity: .92; transform: translate3d(48px,65px,30px) rotateX(-28deg) rotateY(18deg) rotateZ(25deg); }
-      100% { opacity: 0; transform: translate3d(125px,170px,45px) rotateX(-48deg) rotateY(30deg) rotateZ(48deg); }
-    }
-    @keyframes folded-paper-release {
-      0% { opacity: 1; transform: translate3d(0,0,0) rotateZ(0) rotateY(0); }
-      45% { opacity: .9; transform: translate3d(38px,53px,18px) rotateZ(28deg) rotateY(-24deg); }
-      100% { opacity: 0; transform: translate3d(112px,158px,36px) rotateZ(58deg) rotateY(-52deg); }
+    @keyframes unused-legacy-sticker-peel {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
     @keyframes photo-glow {
       0%, 100% { box-shadow: 0 25px 80px rgba(112,45,75,.2), 0 0 0 1px rgba(255,255,255,.75); }
@@ -290,11 +283,11 @@
     let peelComplete = false;
     const colors = ['#e84f87', '#f27eaa', '#d94f83', '#f6a4c2', '#c94e7a', '#ffffff'];
 
-    // The corner tracks the finger/mouse while the printed sheet bends away.
+    // Köşe, parmak/fare hareketine birebir bağlanır; bırakınca soyulma tamamlanır.
     peelHandle.addEventListener('pointerdown', (event) => {
       if (peelComplete || peelStart) return;
       event.preventDefault();
-      peelStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      peelStart = { id: event.pointerId, x: event.clientX, y: event.clientY, progress: 0 };
       peelHandle.classList.add('dragging');
       photoStage.classList.add('is-dragging');
       try { peelHandle.setPointerCapture(event.pointerId); } catch (error) {}
@@ -302,31 +295,47 @@
 
     function movePeel(event) {
       if (!peelStart || event.pointerId !== peelStart.id || peelComplete) return;
+
+      // Down-right travel sets the peel distance continuously; no sudden threshold jump.
       const dx = Math.max(0, event.clientX - peelStart.x);
       const dy = Math.max(0, event.clientY - peelStart.y);
+      const distance = Math.hypot(dx, dy);
+      const progress = Math.min(.96, distance / 245);
+      peelStart.progress = progress;
 
-      // Smoothly grow the lifted corner instead of cutting the image into pieces.
-      const progress = Math.min(1, Math.max(dx / 105, dy / 135));
-      photoStage.style.setProperty('--peel-x', (progress * 48).toFixed(2) + '%');
-      photoStage.style.setProperty('--peel-y', (progress * 56).toFixed(2) + '%');
+      const peelX = Math.min(66, progress * 70 + dx / 11);
+      const peelY = Math.min(72, progress * 76 + dy / 13);
+      photoStage.style.setProperty('--peel-x', peelX.toFixed(2) + '%');
+      photoStage.style.setProperty('--peel-y', peelY.toFixed(2) + '%');
 
-      const bend = progress * 1;
-      const flapMoveX = Math.min(52, dx * .38);
-      const flapMoveY = Math.min(68, dy * .38);
-      const fold = progress * 34;
+      // The full photo sheet lifts progressively; the peeled corner curls above it.
+      const sheetX = dx * .24 + progress * 20;
+      const sheetY = dy * .29 + progress * 28;
+      const tiltX = Math.min(18, dy * .045);
+      const tiltY = Math.min(24, dx * .055);
+      const rotation = Math.min(8, progress * 8);
+      photoStage.style.setProperty('--sheet-x', sheetX.toFixed(1) + 'px');
+      photoStage.style.setProperty('--sheet-y', sheetY.toFixed(1) + 'px');
+      photoStage.style.setProperty('--sheet-rx', (-tiltX).toFixed(2) + 'deg');
+      photoStage.style.setProperty('--sheet-ry', (-tiltY).toFixed(2) + 'deg');
+      photoStage.style.setProperty('--sheet-rz', rotation.toFixed(2) + 'deg');
+      photoStage.style.setProperty('--sheet-scale', (1 - progress * .035).toFixed(3));
+
       const flap = photoStage.querySelector('.peel-flap');
+      const flapX = dx * .44 + progress * 16;
+      const flapY = dy * .48 + progress * 20;
+      const fold = progress * 58;
       if (flap) {
         flap.style.transform =
-          'perspective(1100px) translate3d(' + flapMoveX + 'px,' + flapMoveY + 'px,18px) ' +
-          'rotateX(' + (-fold * .65) + 'deg) rotateY(' + (fold * .45) + 'deg) rotateZ(' + (progress * 13) + 'deg)';
+          'perspective(1100px) translate3d(' + flapX.toFixed(1) + 'px,' +
+          flapY.toFixed(1) + 'px,28px) rotateX(' + (-fold * .7).toFixed(2) +
+          'deg) rotateY(' + (fold * .48).toFixed(2) + 'deg) rotateZ(' +
+          (progress * 22).toFixed(2) + 'deg)';
       }
       peelHandle.style.transform =
-        'perspective(900px) translate3d(' + Math.min(65, dx * .5) + 'px,' +
-        Math.min(82, dy * .5) + 'px,24px) rotateX(-' + (progress * 24) +
-        'deg) rotateZ(' + (progress * 30) + 'deg)';
-
-      // A deliberate diagonal pull starts the full sticker lift.
-      if (dx >= 30 && dy >= 38) completePeel();
+        'perspective(900px) translate3d(' + (dx * .48).toFixed(1) + 'px,' +
+        (dy * .5).toFixed(1) + 'px,34px) rotateX(' + (-fold * .45).toFixed(2) +
+        'deg) rotateZ(' + (progress * 38).toFixed(2) + 'deg)';
     }
 
     function resetPeel() {
@@ -335,6 +344,12 @@
       photoStage.classList.remove('is-dragging');
       photoStage.style.removeProperty('--peel-x');
       photoStage.style.removeProperty('--peel-y');
+      photoStage.style.removeProperty('--sheet-x');
+      photoStage.style.removeProperty('--sheet-y');
+      photoStage.style.removeProperty('--sheet-rx');
+      photoStage.style.removeProperty('--sheet-ry');
+      photoStage.style.removeProperty('--sheet-rz');
+      photoStage.style.removeProperty('--sheet-scale');
       const flap = photoStage.querySelector('.peel-flap');
       if (flap) flap.style.transform = '';
       peelHandle.style.transform = '';
@@ -353,13 +368,13 @@
 
     function finishPeel(event) {
       if (!peelStart || event.pointerId !== peelStart.id || peelComplete) return;
-      const dx = Math.max(0, event.clientX - peelStart.x);
-      const dy = Math.max(0, event.clientY - peelStart.y);
-      if (dx >= 22 && dy >= 28) completePeel();
+      movePeel(event);
+      const progress = peelStart ? peelStart.progress : 0;
+      if (progress >= .12) completePeel();
       else resetPeel();
     }
 
-    window.addEventListener('pointermove', movePeel, { passive: false });
+    window.addEventListener('pointermove', movePeel, { passive: true });
     window.addEventListener('pointerup', finishPeel);
     window.addEventListener('pointercancel', resetPeel);
     peelHandle.addEventListener('lostpointercapture', () => {
