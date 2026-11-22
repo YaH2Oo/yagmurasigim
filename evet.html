@@ -8,8 +8,9 @@
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 20px;
-      overflow: hidden; isolation: isolate;
+      margin: 0; min-height: 100vh; min-height: 100svh;
+      display: grid; place-items: center; padding: 18px 20px 24px;
+      overflow-x: hidden; overflow-y: auto; isolation: isolate;
       font-family: system-ui, -apple-system, Segoe UI, sans-serif; color: #702d4b;
       background:
         radial-gradient(circle at 15% 18%, rgba(255,255,255,.95), transparent 28%),
@@ -23,6 +24,7 @@
     }
     main {
       position: relative; z-index: 2; width: min(760px, 100%); text-align: center;
+      padding: 8px 0 16px;
       animation: arrive .9s cubic-bezier(.2,.8,.2,1) both;
     }
     .photo-frame {
@@ -32,7 +34,7 @@
       animation: photo-glow 3.8s ease-in-out infinite;
     }
     img {
-      display: block; width: 100%; max-height: 72vh; object-fit: contain;
+      display: block; width: 100%; max-height: min(50vh, 520px); object-fit: contain;
       border-radius: 22px; animation: photo-in 1.15s .08s cubic-bezier(.2,.8,.2,1) both;
     }
     .love-counter {
@@ -120,7 +122,7 @@
     @media (max-width: 520px) {
       body { padding: 14px; }
       .photo-frame { padding: 6px; border-radius: 23px; }
-      img { max-height: 69vh; border-radius: 18px; }
+      img { max-height: 42vh; border-radius: 18px; }
       a { margin-top: 16px; }
       .love-counter { margin-top: 14px; padding: 13px 10px 14px; border-radius: 18px; }
       .counter-grid { gap: 6px; }
