@@ -65,7 +65,8 @@
       border-radius: 22px; transform-origin: 100% 0%;
       animation: photo-in 1.15s .08s cubic-bezier(.2,.8,.2,1) both;
       will-change: transform, opacity, filter, clip-path;
-      transition: transform .12s linear, clip-path .12s linear, filter .12s linear;
+      transition: transform .1s linear, clip-path .1s linear, filter .1s linear;
+      backface-visibility: hidden;
     }
     /* Fotoğrafın basılı yüzü, parmağın hareketiyle birlikte yapışkanlı kâğıt gibi kalkar. */
     .peel-flap {
@@ -119,14 +120,17 @@
     .peel-handle:focus-visible { outline: 3px solid #b94b79; outline-offset: -5px; }
     .peel-handle.dragging { cursor: grabbing; transition: none; }
     .photo-stage.is-peeled .couple-photo {
-      clip-path: none !important;
-      transform: perspective(1500px) translate3d(225px, 285px, 72px)
-        rotateX(27deg) rotateY(-38deg) rotateZ(15deg) scale(.82) !important;
-      opacity: 0; filter: drop-shadow(-20px 28px 18px rgba(55,24,42,0)) !important;
+      /* Stop the entrance keyframes from pinning opacity at 1 after the sheet is released. */
+      animation: none !important;
+      clip-path: none;
+      transform: perspective(1400px) translate3d(125%, 138%, 90px)
+        rotateX(23deg) rotateY(-32deg) rotateZ(12deg) scale(.78);
+      opacity: 0;
+      filter: drop-shadow(-20px 28px 18px rgba(55,24,42,0));
       transition:
-        transform 1.18s cubic-bezier(.18,.72,.2,1),
-        opacity .92s ease .18s,
-        filter 1.05s ease;
+        transform 1.05s cubic-bezier(.18,.72,.2,1),
+        opacity .72s ease .12s,
+        filter .9s ease;
       pointer-events: none;
     }
     .photo-stage.is-peeled .peel-flap {
@@ -199,8 +203,8 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
     @keyframes photo-in {
-      from { opacity: 0; transform: scale(.94); filter: blur(8px); }
-      to { opacity: 1; transform: scale(1); filter: blur(0); }
+      from { opacity: 0; filter: blur(8px); }
+      to { opacity: 1; filter: blur(0); }
     }
     @keyframes unused-legacy-sticker-peel {
       from { opacity: 1; }
@@ -360,8 +364,13 @@
       peelComplete = true;
       peelStart = null;
 
-      // Keep the exact live fold pose, then let CSS ease it away from that pose.
+      // Freeze every moving piece at its live position before starting the final glide.
+      const image = photoStage.querySelector('.couple-photo');
       const flap = photoStage.querySelector('.peel-flap');
+      if (image) {
+        const currentImageTransform = getComputedStyle(image).transform;
+        if (currentImageTransform !== 'none') image.style.transform = currentImageTransform;
+      }
       if (flap) {
         const currentFlapTransform = getComputedStyle(flap).transform;
         if (currentFlapTransform !== 'none') flap.style.transform = currentFlapTransform;
@@ -375,8 +384,9 @@
       peelHandle.disabled = true;
       peelHandle.setAttribute('aria-hidden', 'true');
 
-      // Clearing inline transforms on the next frame triggers the defined smooth release transitions.
+      // Next frame: CSS eases the sheet and folded corner completely out of view.
       requestAnimationFrame(() => {
+        if (image) image.style.transform = '';
         if (flap) flap.style.transform = '';
         peelHandle.style.transform = '';
       });
