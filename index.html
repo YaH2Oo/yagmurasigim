@@ -68,6 +68,12 @@
     button:active { transform: scale(.985); }
     .gate.wrong { animation: shake .28s linear; border-color: rgba(255,55,75,.85); }
     .gate.wrong input { border-color: rgba(255,55,75,.9); box-shadow: 0 0 14px rgba(255,30,60,.18); }
+    .hint {
+      margin: 18px 0 0; color: #b5ffc8; font-size: .9rem; line-height: 1.6;
+      letter-spacing: .02em; text-shadow: 0 0 12px rgba(65,255,121,.28);
+      animation: appear .65s ease both;
+    }
+    .hint[hidden] { display: none; }
     @keyframes appear {
       from { opacity: 0; transform: translateY(14px) scale(.97); filter: blur(5px); }
       to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
@@ -98,11 +104,14 @@
       <input id="password" name="password" type="password" aria-label="Şifre" autocomplete="off" autocapitalize="off" spellcheck="false" required autofocus>
       <button type="submit" aria-label="Devam et">?</button>
     </form>
+    <p class="hint" id="hint" aria-live="polite" hidden>Bizi birbirimize bağlayan, kalplerimizin ortak dili olan o üç harfli şey… ❤️</p>
   </main>
   <script>
     const form = document.getElementById('gate-form');
     const password = document.getElementById('password');
     const gate = document.getElementById('gate');
+    const hint = document.getElementById('hint');
+    let wrongAttempts = 0;
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
@@ -110,6 +119,8 @@
       if (entered === 'aşk') {
         window.location.href = 'soru.html';
       } else {
+        wrongAttempts++;
+        if (wrongAttempts >= 3) hint.hidden = false;
         gate.classList.remove('wrong');
         void gate.offsetWidth;
         gate.classList.add('wrong');
