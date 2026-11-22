@@ -4,164 +4,78 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#fff0f5">
-  <title>Bir Sorum Var…</title>
+  <title>Küçük Bir Sır ❤️</title>
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0; min-height: 100vh; display: grid; place-items: center;
-      padding: 24px; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
-      color: #612b43; overflow: hidden;
-      background: radial-gradient(circle at 20% 15%, #fff 0 7%, transparent 28%),
-                  linear-gradient(135deg, #fff0f5, #ffe0eb 55%, #fbd0e1);
+      margin: 0; min-height: 100vh; min-height: 100svh; display: grid; place-items: center;
+      padding: 22px; font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+      color: #702d4b; overflow: hidden;
+      background:
+        radial-gradient(circle at 16% 16%, rgba(255,255,255,.95), transparent 29%),
+        radial-gradient(circle at 85% 82%, rgba(255,190,215,.6), transparent 30%),
+        linear-gradient(135deg, #fff0f5, #ffd9e8 55%, #ffeaf1);
     }
-    main {
-      width: min(620px, 100%); text-align: center; padding: clamp(28px, 6vw, 56px);
-      border: 1px solid rgba(190, 93, 130, .18); border-radius: 28px;
-      background: rgba(255,255,255,.78); box-shadow: 0 24px 70px rgba(126, 45, 78, .13);
-      backdrop-filter: blur(10px);
+    .gate {
+      width: min(440px, 100%); padding: clamp(28px, 7vw, 46px);
+      text-align: center; border: 1px solid rgba(190,93,130,.18); border-radius: 28px;
+      background: rgba(255,255,255,.78); backdrop-filter: blur(12px);
+      box-shadow: 0 24px 70px rgba(126,45,78,.14);
+      animation: appear .8s cubic-bezier(.2,.8,.2,1) both;
     }
-    h1 { margin: 0 0 30px; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.12; }
-    .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; min-height: 58px; }
+    .lock {
+      width: 62px; height: 62px; margin: 0 auto 18px; display: grid; place-items: center;
+      border-radius: 50%; color: #c14f7b; font-size: 28px;
+      background: #ffe4ee; box-shadow: 0 8px 24px rgba(190,93,130,.13);
+    }
+    h1 { margin: 0 0 9px; color: #873653; font-size: clamp(1.8rem, 7vw, 2.35rem); }
+    .sub { margin: 0 0 25px; color: #aa6b84; font-size: .95rem; }
+    label { display: block; text-align: left; margin: 0 0 8px 3px; color: #934560; font-size: .84rem; font-weight: 700; }
+    input {
+      display: block; width: 100%; height: 52px; padding: 0 16px; outline: none;
+      border: 1px solid #edc2d3; border-radius: 14px; background: #fffafd;
+      color: #702d4b; font: inherit; text-align: center; letter-spacing: .12em;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    input:focus { border-color: #d96b96; box-shadow: 0 0 0 4px rgba(217,107,150,.13); }
     button {
-      border: 0; border-radius: 999px; padding: 15px 24px; font-size: 1rem;
-      font-weight: 700; cursor: pointer; box-shadow: 0 8px 20px rgba(126,45,78,.13);
+      width: 100%; margin-top: 14px; min-height: 51px; border: 0; border-radius: 999px;
+      color: #fff; background: #d94f83; font: inherit; font-weight: 750; cursor: pointer;
+      box-shadow: 0 9px 22px rgba(190,63,112,.2); transition: transform .2s, background .2s;
     }
-    #yes { color: white; background: #d94f83; }
-    #yes:hover { background: #c83f73; transform: translateY(-2px); }
-    #no { color: #9c4165; background: #ffe0eb; position: relative; }
-    #no.is-escaping {
-      position: fixed !important;
-      z-index: 2147483647 !important;
-      margin: 0 !important;
-      max-width: calc(100vw - 28px);
-      transition: left 130ms ease-out, top 130ms ease-out;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    @media (max-width: 480px) { .buttons { gap: 10px; } #yes { width: 100%; } }
+    button:hover { background: #c83f73; transform: translateY(-2px); }
+    #message { min-height: 22px; margin: 14px 0 0; color: #bd4771; font-size: .84rem; }
+    @keyframes appear { from { opacity: 0; transform: translateY(18px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Benimle çıkar mısın?</h1>
-    <div class="buttons">
-      <button id="yes" type="button">Evet, seni seviyorum.</button>
-      <button id="no" type="button" aria-label="Başka seçenek yok zaten">Başka seçenek yok zaten.</button>
-    </div>
+  <main class="gate">
+    <div class="lock" aria-hidden="true">♡</div>
+    <h1>Minik bir sır…</h1>
+    <p class="sub">Devam etmek için şifreyi gir.</p>
+    <form id="gate-form">
+      <label for="password">ŞİFRE</label>
+      <input id="password" name="password" type="password" placeholder="Şifreyi yaz..." autocomplete="off" autocapitalize="off" spellcheck="false" required autofocus>
+      <button type="submit">Giriş yap</button>
+      <p id="message" role="status" aria-live="polite"></p>
+    </form>
   </main>
   <script>
-    const yes = document.getElementById('yes');
-    const no = document.getElementById('no');
-    yes.addEventListener('click', () => { window.location.href = 'evet.html'; });
+    const form = document.getElementById('gate-form');
+    const password = document.getElementById('password');
+    const message = document.getElementById('message');
 
-    let lastEscapeAt = 0;
-    let lastPointer = { x: -10000, y: -10000 };
-    const hayirSozleri = [
-      "Başka seçenek yok zaten.",
-      "Hayır demek için mi geldin cidden?",
-      "Parmağın yorulacak, vazgeç bence.",
-      "Bu hızla ancak rüyanda yakalarsın.",
-      "Kalbimi kırma, butonu da yakalayamazsın.",
-      "Hayır tuşu bugün yıllık izinde.",
-      "Bir evet de bitsin bu kovalamaca!",
-      "Ben kaçıyorum, sen düşün.",
-      "Bu kadar ısrar romantik sayılır mı?",
-      "Tamam tamam... yok, yine kaçtım!"
-    ];
-    let sozSirasi = 0;
-
-    function kaçır(pointerX, pointerY) {
-      const now = performance.now();
-      if (now - lastEscapeAt < 90) return;
-      lastEscapeAt = now;
-
-      // Her kaçış denemesinde sıradaki komik cevap yazsın.
-      sozSirasi = (sozSirasi + 1) % hayirSozleri.length;
-      no.textContent = hayirSozleri[sozSirasi];
-      no.setAttribute('aria-label', hayirSozleri[sozSirasi]);
-
-      // İlk kaçışta butonu main kutusunun dışına al; böylece hiçbir kapsayıcı
-      // tarafından kesilmez veya kartın arkasında kalmaz.
-      if (!no.classList.contains('is-escaping')) {
-        const firstRect = no.getBoundingClientRect();
-        document.body.appendChild(no);
-        no.classList.add('is-escaping');
-        no.style.left = firstRect.left + 'px';
-        no.style.top = firstRect.top + 'px';
-      }
-
-      const margin = 14;
-      const rect = no.getBoundingClientRect();
-      const width = Math.min(rect.width, Math.max(80, window.innerWidth - margin * 2));
-      const height = Math.min(rect.height, Math.max(36, window.innerHeight - margin * 2));
-      no.style.width = 'max-content';
-      no.style.maxWidth = 'calc(100vw - 28px)';
-
-      const maxX = Math.max(margin, window.innerWidth - width - margin);
-      const maxY = Math.max(margin, window.innerHeight - height - margin);
-
-      // Ekranın içinde kalabilecek birçok nokta dener ve imleçten en uzak
-      // noktayı seçer. Böylece buton ekran dışına kaçıp kaybolmaz.
-      let best = { x: margin, y: margin, distance: -1 };
-      for (let i = 0; i < 28; i++) {
-        const x = margin + Math.random() * (maxX - margin);
-        const y = margin + Math.random() * (maxY - margin);
-        const centerX = x + width / 2;
-        const centerY = y + height / 2;
-        const distance = Math.hypot(centerX - pointerX, centerY - pointerY);
-        if (distance > best.distance) best = { x, y, distance };
-      }
-
-      no.style.left = Math.min(maxX, Math.max(margin, best.x)) + 'px';
-      no.style.top = Math.min(maxY, Math.max(margin, best.y)) + 'px';
-    }
-
-    no.addEventListener('pointerenter', (event) => {
-      kaçır(event.clientX, event.clientY);
-    });
-
-    no.addEventListener('pointerdown', (event) => {
+    form.addEventListener('submit', (event) => {
       event.preventDefault();
-      kaçır(event.clientX, event.clientY);
-    });
-
-    no.addEventListener('click', (event) => {
-      event.preventDefault();
-      kaçır(lastPointer.x, lastPointer.y);
-    });
-
-    no.addEventListener('focus', () => {
-      kaçır(lastPointer.x, lastPointer.y);
-    });
-
-    no.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        kaçır(lastPointer.x, lastPointer.y);
+      const entered = password.value.trim().toLocaleLowerCase('tr-TR');
+      if (entered === 'aşk') {
+        window.location.href = 'soru.html';
+      } else {
+        message.textContent = 'Şifre olmadı, bir daha dene. ❤️';
+        password.value = '';
+        password.focus();
       }
-    });
-
-    // İmleç butona yaklaşmaya devam ederse her seferinde yeniden kaçar.
-    document.addEventListener('pointermove', (event) => {
-      lastPointer = { x: event.clientX, y: event.clientY };
-      const rect = no.getBoundingClientRect();
-      const nearX = Math.max(rect.left - 115, Math.min(event.clientX, rect.right + 115));
-      const nearY = Math.max(rect.top - 85, Math.min(event.clientY, rect.bottom + 85));
-      if (Math.hypot(event.clientX - nearX, event.clientY - nearY) < 95) {
-        kaçır(event.clientX, event.clientY);
-      }
-    }, { passive: true });
-
-    // Pencere boyutu değişirse butonu görünür alanın dışına taşırma.
-    window.addEventListener('resize', () => {
-      if (!no.classList.contains('is-escaping')) return;
-      const rect = no.getBoundingClientRect();
-      const margin = 14;
-      const maxX = Math.max(margin, window.innerWidth - rect.width - margin);
-      const maxY = Math.max(margin, window.innerHeight - rect.height - margin);
-      no.style.left = Math.min(maxX, Math.max(margin, rect.left)) + 'px';
-      no.style.top = Math.min(maxY, Math.max(margin, rect.top)) + 'px';
     });
   </script>
 </body>
